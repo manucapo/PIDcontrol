@@ -13,10 +13,11 @@ Process.mass = 10
 Process.damping = 0.3
 Process.gravity = 0
 Controller.saturation = 1500
-Controller.integralstop = 40
+Controller.integralstop = 100
 Controller.proportionalGain = 50
 Controller.integralGain = 0
 Controller.differentialGain = 0
+Controller.diffonprocess = True
 Controller.power = 1
 Controller.noise = 0.0
 Controller.dt = 0.02
@@ -33,7 +34,7 @@ noiax = figure.add_axes([0.105, 0.5, 0.02, 0.3])
 #
 pslider = Slider(ax=pax, label="P-gain", valmin=0.0, valmax=100, valinit=Controller.proportionalGain, orientation="vertical")
 islider = Slider(ax=iax, label="I-gain", valmin=0.0, valmax=100, valinit=Controller.integralGain, orientation="vertical")
-dslider = Slider(ax=dax, label="D-gain", valmin=0.0, valmax=100, valinit=Controller.differentialGain, orientation="vertical")
+dslider = Slider(ax=dax, label="D-gain", valmin=-100, valmax=100, valinit=Controller.differentialGain, orientation="vertical")
 noislider = Slider(ax=noiax, label="Noise", valmin=0.0, valmax=2, valinit=Controller.noise, orientation="vertical")
 #
 damax = figure.add_axes([0.5, 0.01, 0.2, 0.02])

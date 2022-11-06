@@ -1,18 +1,18 @@
 import numpy as np
-import matplotlib.pyplot as plot
-import matplotlib.animation as animation
 
 
 class PIDcontrol:
     # Represents a PID controller able to output a control signal based on the difference between a measured input and a desired set point
     __previousError = 0.0           # Store error recorded during the last iteration
+    __previousProcessValue = 0.0  # Store process value recorded during the last iteration
     __errorSummer = 0.0             # Store running sum of error value
 
-    def __init__(self, power=1, proportionalgain=1, integralgain=0, differentialgain=0, saturation=0, integralstop=10, noise=0, dt=1):
+    def __init__(self, power=1, proportionalgain=1, integralgain=0, differentialgain=0, diffonprocess=True, saturation=0, integralstop=10, noise=0, dt=1):
         self._power = power
         self._proportionalGain = proportionalgain
         self._integralGain = integralgain
         self._differentialGain = differentialgain
+        self._diffonprocess = diffonprocess
         self._saturation = saturation
         self._integralstop = integralstop
         self._noise = noise
@@ -42,6 +42,12 @@ class PIDcontrol:
     def get_dgain(self):
         return self._differentialGain
 
+    def set_diffonprocess(self, value):
+        self._diffonprocess = value
+
+    def get_diffonprocess(self):
+        return self._diffonprocess
+
     def set_saturation(self, saturation):
         self._saturation = saturation
 
@@ -69,21 +75,27 @@ class PIDcontrol:
     def get_dt(self):
         return self._dt
 
-    power = property(get_power, set_power)                        # Tunes the overall output power available
-    proportionalGain = property(get_pgain, set_pgain)             # Tunes the proportional response of the control output to the measured error between input and set point
-    integralGain = property(get_igain, set_igain)                 # Tunes the response of the control output to long term changes in the measured error
-    differentialGain = property(get_dgain, set_dgain)             # Tunes the response of the control output to short term changes in the measured error
-    saturation = property(get_saturation, set_saturation)         # Sets the absolute maximum magnitude of the control signal output
-    integralstop = property(get_integralstop, set_integralstop)   # Caps the error summer value in order to control integrator wind up
-    noise = property(get_noise, set_noise)                        # Standard deviation of a gaussian noise source added to the measured error signal
-    dt = property(get_dt, set_dt)                                 # Time between iterations
+    power = property(get_power, set_power)                         # Tunes the overall output power available
+    proportionalGain = property(get_pgain, set_pgain)              # Tunes the proportional response of the control output to the measured error between input and set point
+    integralGain = property(get_igain, set_igain)                  # Tunes the response of the control output to long term changes in the measured error
+    differentialGain = property(get_dgain, set_dgain)              # Tunes the response of the control output to short term changes in the measured error
+    diffonprocess = property(get_diffonprocess, set_diffonprocess) # Decides whether the differential gain acts on the error ( false ) or on the process value ( true ) to avoid kicking
+    saturation = property(get_saturation, set_saturation)          # Sets the absolute maximum magnitude of the control signal output
+    integralstop = property(get_integralstop, set_integralstop)    # Caps the error summer value in order to control integrator wind up
+    noise = property(get_noise, set_noise)                         # Standard deviation of a gaussian noise source added to the measured error signal
+    dt = property(get_dt, set_dt)                                  # Time between iterations
 
     def control(self, processvalue, setpoint):
         # Output a control signal based on the measured error
-        error = (setpoint - processvalue)  + np.random.normal(0, self.noise)   # Calculate difference between measured signal and chosen setpoint and add noise to the measurment
-        differror = (error - self.__previousError) / self.dt                   # Differentiate error signal by comparing current error with the error measured during the last iteration
+        processvalue += np.random.normal(0, self.noise)                        # and add noise to the measured signal
+        error = (setpoint - processvalue)                                      # Calculate difference between measured signal and chosen setpoint
+        if self.diffonprocess:
+            differror = (processvalue - self.__previousProcessValue) / self.dt  # Differentiate process signal by comparing current value with the value measured during the last iteration
+        else:
+            differror = (error - self.__previousError) / self.dt                 # Differentiate error signal by comparing current error with the error measured during the last iteration
         self.__errorSummer += error * self.dt                                  # Integrate error signal by summing error values over time
         self.__previousError = error                                           # Record current error to be used during diferentiation in next iteration
+        self.__previousProcessValue = processvalue                             # Record current process value to be used during diferentiation in next iteration
         output = (error * self.proportionalGain + self.__errorSummer * self.integralGain + differror * self.differentialGain) * self.power  # PID control logic
         # Integral windup stop
         if self.__errorSummer > self.integralstop:
