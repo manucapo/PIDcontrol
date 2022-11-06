@@ -1,30 +1,27 @@
-# This is a sample Python script.
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from PIDcontrol import PIDcontrol
 from PIDcontrol import Process
 import matplotlib.pyplot as plot
 import matplotlib.animation as animation
-from matplotlib.widgets import Slider, Button
+from matplotlib.widgets import Slider
 
 Controller = PIDcontrol()
 Process = Process()
 Process.mass = 10
 Process.damping = 0.3
 Process.gravity = 0
-Controller.saturation = 1500
+Controller.saturation = 2000
 Controller.integralstop = 100
-Controller.proportionalGain = 50
+Controller.proportionalGain = 1
 Controller.integralGain = 0
 Controller.differentialGain = 0
 Controller.diffonprocess = True
-Controller.power = 1
+Controller.power = 15
 Controller.noise = 0.0
 Controller.dt = 0.02
 Setpoint = 0.0
 xLen = 50
 figure = plot.figure(figsize=(15, 8))
-figure.subplots_adjust(bottom=0.4, left=0.4)
+figure.subplots_adjust(bottom=0.1, left=0.2)
 axes1 = figure.add_subplot(2, 1, 2)
 axes2 = figure.add_subplot(2, 1, 1)
 pax = figure.add_axes([0.01, 0.5, 0.02, 0.3])
@@ -32,17 +29,17 @@ iax = figure.add_axes([0.04, 0.5, 0.02, 0.3])
 dax = figure.add_axes([0.07, 0.5, 0.02, 0.3])
 noiax = figure.add_axes([0.105, 0.5, 0.02, 0.3])
 #
-pslider = Slider(ax=pax, label="P-gain", valmin=0.0, valmax=100, valinit=Controller.proportionalGain, orientation="vertical")
-islider = Slider(ax=iax, label="I-gain", valmin=0.0, valmax=100, valinit=Controller.integralGain, orientation="vertical")
-dslider = Slider(ax=dax, label="D-gain", valmin=-100, valmax=100, valinit=Controller.differentialGain, orientation="vertical")
+pslider = Slider(ax=pax, label="P-gain", valmin=0.0, valmax=20, valinit=Controller.proportionalGain, orientation="vertical")
+islider = Slider(ax=iax, label="I-gain", valmin=0.0, valmax=20, valinit=Controller.integralGain, orientation="vertical")
+dslider = Slider(ax=dax, label="D-gain", valmin=-20, valmax=20, valinit=Controller.differentialGain, orientation="vertical")
 noislider = Slider(ax=noiax, label="Noise", valmin=0.0, valmax=2, valinit=Controller.noise, orientation="vertical")
 #
 damax = figure.add_axes([0.5, 0.01, 0.2, 0.02])
 gravax = figure.add_axes([0.5, 0.04, 0.2, 0.02])
 masax = figure.add_axes([0.5, 0.07, 0.2, 0.02])
-damslider = Slider(ax=damax, label="Damping", valmin=0.05, valmax=0.5, valinit=Process.damping, orientation="horizontal")
+damslider = Slider(ax=damax, label="Damping", valmin=0.05, valmax=0.4, valinit=Process.damping, orientation="horizontal")
 gravslider = Slider(ax=gravax, label="Gravity", valmin=0.0, valmax=0.5, valinit=Process.gravity, orientation="horizontal")
-masslider = Slider(ax=masax, label="Mass", valmin=1.0, valmax=100.0, valinit=Process.mass, orientation="horizontal")
+masslider = Slider(ax=masax, label="Mass", valmin=1.0, valmax=20, valinit=Process.mass, orientation="horizontal")
 xAxis = list(range(0, xLen))
 yAxis1 = [0.0] * xLen
 yAxis2 = [0.0] * xLen
@@ -59,8 +56,8 @@ axes2.spines['bottom'].set_position('zero')
 axes2.spines['top'].set_position('zero')
 axes2.set_xticks([])
 axes2.set_ylabel("Controller")
-line1, = axes1.plot(xAxis, yAxis1)
-line2, = axes1.plot(xAxis, yAxis2)
+line1, = axes1.plot(xAxis, yAxis1, "red")
+line2, = axes1.plot(xAxis, yAxis2, "orange")
 line3, = axes2.plot(xAxis, yAxis3)
 
 
@@ -123,10 +120,8 @@ def animate(i, yaxis1, yaxis2, yaxis3):
     return lines
 
 
-# Press the green button in the gutter to run the script.
+
 if __name__ == '__main__':
     anim = animation.FuncAnimation(figure, animate, fargs=(yAxis1, yAxis2, yAxis3), interval=20, repeat=False, blit=True)
     plot.show()
 
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

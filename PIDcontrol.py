@@ -79,7 +79,7 @@ class PIDcontrol:
     proportionalGain = property(get_pgain, set_pgain)              # Tunes the proportional response of the control output to the measured error between input and set point
     integralGain = property(get_igain, set_igain)                  # Tunes the response of the control output to long term changes in the measured error
     differentialGain = property(get_dgain, set_dgain)              # Tunes the response of the control output to short term changes in the measured error
-    diffonprocess = property(get_diffonprocess, set_diffonprocess) # Decides whether the differential gain acts on the error ( false ) or on the process value ( true ) to avoid kicking
+    diffonprocess = property(get_diffonprocess, set_diffonprocess) # Decides whether the differential gain acts on the error ( false ) or on the process value ( true ) to avoid kicking on set point changes
     saturation = property(get_saturation, set_saturation)          # Sets the absolute maximum magnitude of the control signal output
     integralstop = property(get_integralstop, set_integralstop)    # Caps the error summer value in order to control integrator wind up
     noise = property(get_noise, set_noise)                         # Standard deviation of a gaussian noise source added to the measured error signal
@@ -156,7 +156,7 @@ class Process:
     mass = property(get_mass, set_mass)           # The inertia ( resistance to change ) of the process value
     velocity = property(get_velocity)             # The velocity ( rate of change ) of the process value
     acceleration = property(get_acceleration)     # The second derivative of the process value
-    damping = property(get_damping,set_damping)   # Dissipative force working against the current velocity
+    damping = property(get_damping, set_damping)   # Dissipative force working against the current velocity
     gravity = property(get_gravity, set_gravity)  # Offset driving force
 
     def change(self, force):
