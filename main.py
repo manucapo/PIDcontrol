@@ -31,7 +31,7 @@ noiax = figure.add_axes([0.105, 0.5, 0.02, 0.3])
 #
 pslider = Slider(ax=pax, label="P-gain", valmin=0.0, valmax=20, valinit=Controller.proportionalGain, orientation="vertical")
 islider = Slider(ax=iax, label="I-gain", valmin=0.0, valmax=20, valinit=Controller.integralGain, orientation="vertical")
-dslider = Slider(ax=dax, label="D-gain", valmin=-20, valmax=20, valinit=Controller.differentialGain, orientation="vertical")
+dslider = Slider(ax=dax, label="D-gain", valmin=0, valmax=2, valinit=Controller.differentialGain, orientation="vertical")
 noislider = Slider(ax=noiax, label="Noise", valmin=0.0, valmax=2, valinit=Controller.noise, orientation="vertical")
 #
 damax = figure.add_axes([0.5, 0.01, 0.2, 0.02])
@@ -97,6 +97,7 @@ damslider.on_changed(damsliderupdate)
 gravslider.on_changed(gravsliderupdate)
 masslider.on_changed(massliderupdate)
 
+
 def animate(i, yaxis1, yaxis2, yaxis3):
     global Setpoint
     if i > 0:
@@ -105,10 +106,12 @@ def animate(i, yaxis1, yaxis2, yaxis3):
                 Setpoint = 10.0
             elif Setpoint == 10.0:
                 Setpoint = 0.0
-    Process.change((Controller.control(Process.value, Setpoint)) * Controller.dt)
+    value = 0.0
+    value = Controller.control(Process.value, Setpoint)
+    Process.change(value * Controller.dt)
     yAxis1.append(Setpoint)
     yAxis2.append(Process.value)
-    yAxis3.append(Controller.control(Process.value, Setpoint))
+    yAxis3.append(value)
     yaxis1 = yaxis1[-xLen:]
     yaxis2 = yaxis2[-xLen:]
     yaxis3 = yaxis3[-xLen:]

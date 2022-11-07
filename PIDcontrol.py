@@ -91,12 +91,14 @@ class PIDcontrol:
         error = (setpoint - processvalue)                                      # Calculate difference between measured signal and chosen setpoint
         if self.diffonprocess:
             differror = (processvalue - self.__previousProcessValue) / self.dt  # Differentiate process signal by comparing current value with the value measured during the last iteration
+            differror = -differror                                              # Flip error sign so D-gain can remain positive
         else:
             differror = (error - self.__previousError) / self.dt                 # Differentiate error signal by comparing current error with the error measured during the last iteration
         self.__errorSummer += error * self.dt                                  # Integrate error signal by summing error values over time
         self.__previousError = error                                           # Record current error to be used during diferentiation in next iteration
         self.__previousProcessValue = processvalue                             # Record current process value to be used during diferentiation in next iteration
-        output = (error * self.proportionalGain + self.__errorSummer * self.integralGain + differror * self.differentialGain) * self.power  # PID control logic
+        output = ((error * self.proportionalGain) + (self.__errorSummer * self.integralGain) + (differror * self.differentialGain)) * self.power  # PID control logic
+        print(" OUT  : " + str(output) )
         # Integral windup stop
         if self.__errorSummer > self.integralstop:
             self.__errorSummer = self.integralstop
@@ -104,7 +106,7 @@ class PIDcontrol:
             self.__errorSummer = -self.integralstop
         # Output saturation
         if self.saturation != 0:
-            if output  > self.saturation:
+            if output > self.saturation:
                 output = self.saturation
             if output < -self.saturation:
                 output = -self.saturation
@@ -112,6 +114,7 @@ class PIDcontrol:
         print("error = " + str(error))
         print("differential error = " + str(differror))
         print("integral error = " + str(self.__errorSummer))
+        print("output = " + str(output))
         return output
 
 
